@@ -4,6 +4,7 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PublicRoute from "./components/auth/PublicRoute";
 
+import SiswaPage from './pages/users/SiswaPage'
 // Komponen sementara (View)
 const DashboardHome = () => (
   <div>
@@ -38,7 +39,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
-          <Route path="users" element={<UsersPage />} />
+          <Route path="users/siswa" element={<SiswaPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
       </Route>
