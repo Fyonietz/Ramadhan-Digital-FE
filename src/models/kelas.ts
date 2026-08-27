@@ -1,7 +1,7 @@
 // src/models/kelas.ts
 export interface Kelas {
-  id: number;
+  id?: number | string;
   nama: string;
-  angkatan: string;
-  users?: any;
+  angkatan: string | number;
+  users?: any[] | null; // Ditambahkan sesuai struktur response backend
 }

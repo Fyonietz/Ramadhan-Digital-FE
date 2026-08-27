@@ -5,6 +5,10 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import PublicRoute from "./components/auth/PublicRoute";
 
 import SiswaPage from './pages/users/SiswaPage'
+import GuruPage from './pages/users/GuruPage'
+
+import KelasPage from './pages/KelasPage'
+
 // Komponen sementara (View)
 const DashboardHome = () => (
   <div>
@@ -17,9 +21,6 @@ const UsersPage = () => (
   <div><h1 className="text-2xl font-bold text-gray-800">Manajemen Pengguna</h1></div>
 );
 
-const SettingsPage = () => (
-  <div><h1 className="text-2xl font-bold text-gray-800">Pengaturan Sistem</h1></div>
-);
 
 function App() {
   return (
@@ -40,7 +41,8 @@ function App() {
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
           <Route path="users/siswa" element={<SiswaPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+          <Route path="users/guru" element={<GuruPage />} />
+          <Route path="kelas" element={<KelasPage />} />
         </Route>
       </Route>
     </Routes>

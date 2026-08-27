@@ -60,7 +60,37 @@ export const useSiswa = () => {
       alert(err.response?.data?.message || "Gagal menghapus data siswa.");
     }
   };
+// Tambahkan di dalam return value useSiswa pada src/hooks/useSiswa.ts
+// Tambahkan fungsi ini di dalam useSiswa.ts
+const importSiswaExcel = async (idKelas: number, file: File) => {
+    setIsLoading(true);
+    try {
+      const res = await siswaService.importExcel(idKelas, file);
+      await fetchSiswa(); 
+      alert(res.message || "Berhasil mengimpor data siswa!");
+      return true;
+    } catch (err: any) {
+      // Ambil pesan dari objek ExcelImportResponse yang dikirim backend saat status 400
+      const serverResponse = err.response?.data;
+      console.error("Detail Error Backend:", serverResponse);
 
+      const errorMessage = serverResponse?.Message || serverResponse?.message || "Gagal mengimpor file Excel.";
+      
+      // Jika ada detail error baris dari ExcelService
+      if (serverResponse?.Errors && Array.isArray(serverResponse.Errors)) {
+        console.table(serverResponse.Errors);
+        alert(`Gagal Import: ${errorMessage}\n(Cek Console untuk melihat detail error per baris)`);
+      } else {
+        alert(`Gagal Import: ${errorMessage}`);
+      }
+      
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Jangan lupa sertakan importSiswaExcel di return object hook
   return {
     siswaList,
     isLoading,
@@ -68,6 +98,7 @@ export const useSiswa = () => {
     addSiswa,
     updateSiswa,
     removeSiswa,
+    importSiswaExcel, // <-- Ekspor fungsi ini
     refreshSiswa: fetchSiswa,
   };
 };

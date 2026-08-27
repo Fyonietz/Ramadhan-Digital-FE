@@ -1,20 +1,20 @@
-// src/pages/admin/SiswaPage.tsx
 import { useState } from "react";
 import ReusableTable, { type TableColumn } from "../../components/ui/ReusableTable";
 import ReusableModal, { type FormField } from "../../components/ui/ReusableModal";
+import ImportExcelModal from "../../components/ui/ImportExcelModal"; // <-- Import komponen modal excel
 import { useSiswa } from "../../hooks/useSiswa";
-import { useKelas } from "../../hooks/useKelas"; // <-- Import hook kelas
+import { useKelas } from "../../hooks/useKelas";
 import type { Siswa } from "../../models/siswa";
-import { Trash2, Edit, Plus } from "lucide-react";
+import { Trash2, Edit, Plus, FileSpreadsheet } from "lucide-react";
 
 export default function SiswaPage() {
-  const { siswaList, isLoading, errorMsg, addSiswa, updateSiswa, removeSiswa } = useSiswa();
-  const { kelasList } = useKelas(); // <-- Ambil data kelas untuk dropdown
+  const { siswaList, isLoading, errorMsg, addSiswa, updateSiswa, removeSiswa, importSiswaExcel } = useSiswa();
+  const { kelasList } = useKelas();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State modal excel
   const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
 
-  // Ubah field idKelas menjadi tipe 'select' dan petakan data kelas dari API ke dalam format options
   const formFields: FormField<Siswa>[] = [
     { name: "nama", label: "Nama Lengkap", type: "text", placeholder: "Contoh: Ghaniy Madea" },
     { name: "username", label: "Username", type: "text", placeholder: "Contoh: labuah" },
@@ -23,7 +23,6 @@ export default function SiswaPage() {
       name: "idKelas", 
       label: "Kelas", 
       type: "select", 
-      // Memetakan array kelas API menjadi [{ label: "X (2026)", value: 2 }, ...]
       options: kelasList.map((k) => ({
         label: `${k.nama} - Angkatan ${k.angkatan}`,
         value: k.id
@@ -44,7 +43,7 @@ export default function SiswaPage() {
   const handleFormSubmit = async (data: any) => {
     const payload = {
       ...data,
-      idKelas: Number(data.idKelas), // Pastikan bertipe angka
+      idKelas: Number(data.idKelas),
     };
 
     let success = false;
@@ -83,17 +82,27 @@ export default function SiswaPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Manajemen Siswa</h1>
-          <p className="text-sm text-gray-500">Pilihan kelas diambil dinamis dari endpoint kelas.</p>
+          <p className="text-sm text-gray-500">Kelola data siswa satuan atau melalui import Excel.</p>
         </div>
-        <button 
-          onClick={handleOpenAdd}
-          className="bg-[#135f38] hover:bg-[#11562f] text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-colors shadow-sm"
-        >
-          <Plus size={18} /> Tambah Siswa
-        </button>
+        
+        {/* Tombol Aksi (Tambah & Import) */}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsImportModalOpen(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-colors shadow-sm"
+          >
+            <FileSpreadsheet size={18} /> Import Excel
+          </button>
+          <button 
+            onClick={handleOpenAdd}
+            className="bg-[#135f38] hover:bg-[#11562f] text-white px-4 py-2.5 rounded-xl font-medium text-sm flex items-center gap-2 transition-colors shadow-sm"
+          >
+            <Plus size={18} /> Tambah Siswa
+          </button>
+        </div>
       </div>
 
       {errorMsg && (
@@ -107,8 +116,10 @@ export default function SiswaPage() {
         columns={columns} 
         isLoading={isLoading} 
         emptyMessage="Belum ada data siswa."
+         searchableKeys={["nama", "username", "kelas", "role"]}
       />
 
+      {/* Modal Form Manual (Create / Update) */}
       <ReusableModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -116,6 +127,14 @@ export default function SiswaPage() {
         title={selectedSiswa ? "Edit Data Siswa" : "Tambah Siswa Baru"}
         fields={formFields}
         initialData={selectedSiswa}
+      />
+
+      {/* Modal Khusus Import Excel */}
+      <ImportExcelModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={importSiswaExcel}
+        kelasList={kelasList}
       />
     </div>
   );

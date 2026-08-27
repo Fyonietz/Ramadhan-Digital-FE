@@ -2,15 +2,9 @@
 import {
   LayoutDashboard,
   Users,
-  LineChart,
-  Wallet,
-  TrendingUp,
   School,
   GraduationCap,
-  UserCheck,
-  Calendar,
   Binoculars,
-  History,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -31,4 +25,7 @@ export const sidebarItems: SidebarItem[] = [
       { label: 'Guru', path: '/dashboard/users/guru', icon: Users },
     ],
   },
+  {label :'Kelas',path:'/dashboard/kelas',icon:School},
+
+  {label :'Kegiatan',path:'/dashboard/kegiatan',icon:Binoculars}
 ];
