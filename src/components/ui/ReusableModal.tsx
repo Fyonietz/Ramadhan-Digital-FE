@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Eye, EyeOff } from "lucide-react";
 
 export interface FormField<T> {
@@ -79,14 +80,69 @@ export default function ReusableModal<T extends Record<string, any>>({
   }) {
     const [filter, setFilter] = useState("");
     const [open, setOpen] = useState(false);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    const [pos, setPos] = useState<{ left: number; top: number; width: number } | null>(null);
 
     const selectedLabel = options.find((o) => String(o.value) === String(value))?.label || "";
 
     const filtered = options.filter((o) => o.label.toLowerCase().includes(filter.toLowerCase()));
 
+    useLayoutEffect(() => {
+      if (!open) return;
+      const el = inputRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setPos({ left: r.left, top: r.bottom, width: r.width });
+
+      const onScroll = () => {
+        const rr = el.getBoundingClientRect();
+        setPos({ left: rr.left, top: rr.bottom, width: rr.width });
+      };
+
+      window.addEventListener("scroll", onScroll, true);
+      window.addEventListener("resize", onScroll);
+      return () => {
+        window.removeEventListener("scroll", onScroll, true);
+        window.removeEventListener("resize", onScroll);
+      };
+    }, [open]);
+
+    const handleSelect = (v: any) => {
+      onChange(v);
+      setFilter("");
+      setOpen(false);
+    };
+
+    const dropdown = pos ? (
+      <ul
+        id={`list-${name}`}
+        role="listbox"
+        style={{ position: "absolute", left: pos.left, top: pos.top, minWidth: pos.width, zIndex: 9999 }}
+        className="bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-auto text-sm shadow-lg"
+      >
+        {filtered.length === 0 ? (
+          <li className="px-3 py-2 text-gray-500">Tidak ada hasil</li>
+        ) : (
+          filtered.map((opt, idx) => (
+            <li
+              key={idx}
+              role="option"
+              aria-selected={String(opt.value) === String(value)}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+              onMouseDown={(ev) => ev.preventDefault()}
+              onClick={() => handleSelect(opt.value)}
+            >
+              {opt.label}
+            </li>
+          ))
+        )}
+      </ul>
+    ) : null;
+
     return (
       <div className="relative">
         <input
+          ref={inputRef}
           id={`field-${name}`}
           aria-label={label}
           role="combobox"
@@ -101,26 +157,7 @@ export default function ReusableModal<T extends Record<string, any>>({
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors"
         />
 
-        {open && (
-          <ul id={`list-${name}`} role="listbox" className="absolute z-30 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-auto text-sm shadow-sm">
-            {filtered.length === 0 ? (
-              <li className="px-3 py-2 text-gray-500">Tidak ada hasil</li>
-            ) : (
-              filtered.map((opt, idx) => (
-                <li
-                  key={idx}
-                  role="option"
-                  aria-selected={String(opt.value) === String(value)}
-                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                  onMouseDown={(ev) => ev.preventDefault()}
-                  onClick={() => { onChange(opt.value); setFilter(""); setOpen(false); }}
-                >
-                  {opt.label}
-                </li>
-              ))
-            )}
-          </ul>
-        )}
+        {open && pos && createPortal(dropdown, document.body)}
       </div>
     );
   }
