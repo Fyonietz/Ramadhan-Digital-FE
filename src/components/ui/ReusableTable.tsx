@@ -62,10 +62,13 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
           
           {/* Search Bar */}
           <div className="relative w-full sm:w-72">
+            <label htmlFor="table-search" className="sr-only">Cari data</label>
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
               <Search size={16} />
             </span>
             <input
+              id="table-search"
+              aria-label="Cari di tabel"
               type="text"
               placeholder="Cari data..."
               value={searchTerm}
@@ -97,11 +100,12 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
 
       {/* Container Tabel dengan Inside Scroll & Sticky Header */}
       <div className="max-h-[450px] overflow-y-auto relative">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse" role="table" aria-label="Data table">
+          <caption className="sr-only">Tabel data</caption>
           <thead className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider shadow-sm">
             <tr>
               {columns.map((col, index) => (
-                <th key={index} className={`py-4 px-6 font-semibold bg-gray-50 ${col.className || ""}`}>
+                <th key={index} scope="col" className={`py-4 px-6 font-semibold bg-gray-50 ${col.className || ""}`}>
                   {col.header}
                 </th>
               ))}
@@ -146,7 +150,7 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
       </div>
 
       {/* Footer Pagination */}
-      <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+      <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500" aria-live="polite">
         <div>
           Menampilkan <span className="font-semibold text-gray-700">{paginatedData.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}</span> sampai{" "}
           <span className="font-semibold text-gray-700">
@@ -160,6 +164,7 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
+            aria-label="Sebelumnya"
             className="p-2 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft size={16} />
@@ -172,6 +177,7 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
           <button
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages || totalPages === 0}
+            aria-label="Berikutnya"
             className="p-2 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronRight size={16} />

@@ -26,7 +26,8 @@ export default function SiswaPage() {
       options: kelasList.map((k) => ({
         label: `${k.nama} - Angkatan ${k.angkatan}`,
         value: k.id
-      }))
+      })),
+      searchable: true,
     },
   ];
 

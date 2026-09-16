@@ -26,6 +26,7 @@ export default function GuruPage() {
             label: `${k.nama} - Angkatan ${k.angkatan}`,
             value: k.id,
           })),
+          searchable: true,
         },
       ]
     : [

@@ -4,9 +4,10 @@ import { X, Eye, EyeOff } from "lucide-react";
 export interface FormField<T> {
   name: keyof T;
   label: string;
-  type?: "text" | "number" | "select" | "password";
+  type?: "text" | "number" | "select" | "password" | "datetime-local";
   options?: { label: string; value: string | number }[];
   placeholder?: string;
+  searchable?: boolean; // Untuk select yang bisa dicari
 }
 
 export interface ReusableModalProps<T> {
@@ -63,6 +64,66 @@ export default function ReusableModal<T extends Record<string, any>>({
     onClose();
   };
 
+  function SearchableSelect({
+    name,
+    options = [],
+    value,
+    onChange,
+    label,
+  }: {
+    name: string;
+    options?: { label: string; value: string | number }[];
+    value: any;
+    onChange: (val: any) => void;
+    label: string;
+  }) {
+    const [filter, setFilter] = useState("");
+    const [open, setOpen] = useState(false);
+
+    const selectedLabel = options.find((o) => String(o.value) === String(value))?.label || filter || "";
+
+    const filtered = options.filter((o) => o.label.toLowerCase().includes(filter.toLowerCase()));
+
+    return (
+      <div className="relative">
+        <input
+          id={`field-${name}`}
+          aria-label={label}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={`list-${name}`}
+          type="text"
+          placeholder={`Cari ${label}...`}
+          value={selectedLabel}
+          onChange={(e) => { setFilter(e.target.value); setOpen(true); onChange(""); }}
+          onFocus={() => setOpen(true)}
+          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors"
+        />
+
+        {open && (
+          <ul id={`list-${name}`} role="listbox" className="absolute z-30 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-auto text-sm">
+            {filtered.length === 0 ? (
+              <li className="px-3 py-2 text-gray-500">Tidak ada hasil</li>
+            ) : (
+              filtered.map((opt, idx) => (
+                <li
+                  key={idx}
+                  role="option"
+                  aria-selected={String(opt.value) === String(value)}
+                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={(ev) => ev.preventDefault()}
+                  onClick={() => { onChange(opt.value); setFilter(opt.label); setOpen(false); }}
+                >
+                  {opt.label}
+                </li>
+              ))
+            )}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
@@ -88,47 +149,61 @@ export default function ReusableModal<T extends Record<string, any>>({
 
               return (
                 <div key={index} className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-gray-600">
-                    {field.label}
-                  </label>
+                      <label htmlFor={`field-${fieldNameString}`} className="text-xs font-semibold uppercase tracking-wider text-gray-600">
+                        {field.label}
+                      </label>
 
-                  {field.type === "select" ? (
-                    <select
-                      value={formData[fieldNameString] || ""}
-                      onChange={(e) => handleChange(fieldNameString, e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors"
-                      required
-                    >
-                      <option value="" disabled>Pilih {field.label}</option>
-                      {field.options?.map((opt, optIdx) => (
-                        <option key={optIdx} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <div className="relative flex items-center">
-                      <input
-                        type={isPassword && showPassword ? "text" : field.type || "text"}
-                        placeholder={field.placeholder || `Masukkan ${field.label}`}
-                        value={formData[fieldNameString] || ""}
-                        onChange={(e) => handleChange(fieldNameString, e.target.value)}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors pr-10"
-                        required={!initialData || fieldNameString !== "password"} // Password opsional saat edit jika kosong
-                      />
-                      
-                      {/* Tombol Toggle Ikon Mata khusus tipe password */}
-                      {isPassword && (
-                        <button
-                          type="button"
-                          onClick={() => togglePasswordVisibility(fieldNameString)}
-                          className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        >
-                          {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-                        </button>
+                      {field.type === "select" ? (
+                        field.searchable ? (
+                          <SearchableSelect
+                            name={fieldNameString}
+                            options={field.options}
+                            value={formData[fieldNameString]}
+                            onChange={(val) => handleChange(fieldNameString, val)}
+                            label={field.label}
+                          />
+                        ) : (
+                          <select
+                            id={`field-${fieldNameString}`}
+                            aria-label={field.label}
+                            value={formData[fieldNameString] || ""}
+                            onChange={(e) => handleChange(fieldNameString, e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors"
+                            required
+                          >
+                            <option value="" disabled>Pilih {field.label}</option>
+                            {field.options?.map((opt, optIdx) => (
+                              <option key={optIdx} value={opt.value}>
+                                {opt.label}
+                              </option>
+                            ))}
+                          </select>
+                        )
+                      ) : (
+                        <div className="relative flex items-center">
+                          <input
+                            id={`field-${fieldNameString}`}
+                            type={isPassword && showPassword ? "text" : field.type || "text"}
+                            placeholder={field.placeholder || `Masukkan ${field.label}`}
+                            value={formData[fieldNameString] || ""}
+                            onChange={(e) => handleChange(fieldNameString, e.target.value)}
+                            className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors pr-10"
+                            required={!initialData || fieldNameString !== "password"} // Password opsional saat edit jika kosong
+                          />
+
+                          {/* Tombol Toggle Ikon Mata khusus tipe password */}
+                          {isPassword && (
+                            <button
+                              type="button"
+                              onClick={() => togglePasswordVisibility(fieldNameString)}
+                              className="absolute right-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                              aria-label={showPassword ? `Sembunyikan ${field.label}` : `Tampilkan ${field.label}`}
+                            >
+                              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                            </button>
+                          )}
+                        </div>
                       )}
-                    </div>
-                  )}
                 </div>
               );
             })}
