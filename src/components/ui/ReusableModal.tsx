@@ -80,7 +80,7 @@ export default function ReusableModal<T extends Record<string, any>>({
     const [filter, setFilter] = useState("");
     const [open, setOpen] = useState(false);
 
-    const selectedLabel = options.find((o) => String(o.value) === String(value))?.label || filter || "";
+    const selectedLabel = options.find((o) => String(o.value) === String(value))?.label || "";
 
     const filtered = options.filter((o) => o.label.toLowerCase().includes(filter.toLowerCase()));
 
@@ -94,14 +94,15 @@ export default function ReusableModal<T extends Record<string, any>>({
           aria-controls={`list-${name}`}
           type="text"
           placeholder={`Cari ${label}...`}
-          value={selectedLabel}
-          onChange={(e) => { setFilter(e.target.value); setOpen(true); onChange(""); }}
+          value={filter !== "" ? filter : selectedLabel}
+          onChange={(e) => { setFilter(e.target.value); setOpen(true); }}
           onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
           className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-800 outline-none focus:border-[#135f38] transition-colors"
         />
 
         {open && (
-          <ul id={`list-${name}`} role="listbox" className="absolute z-30 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-auto text-sm">
+          <ul id={`list-${name}`} role="listbox" className="absolute z-30 w-full bg-white border border-gray-200 rounded-lg mt-1 max-h-48 overflow-auto text-sm shadow-sm">
             {filtered.length === 0 ? (
               <li className="px-3 py-2 text-gray-500">Tidak ada hasil</li>
             ) : (
@@ -112,7 +113,7 @@ export default function ReusableModal<T extends Record<string, any>>({
                   aria-selected={String(opt.value) === String(value)}
                   className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
                   onMouseDown={(ev) => ev.preventDefault()}
-                  onClick={() => { onChange(opt.value); setFilter(opt.label); setOpen(false); }}
+                  onClick={() => { onChange(opt.value); setFilter(""); setOpen(false); }}
                 >
                   {opt.label}
                 </li>
