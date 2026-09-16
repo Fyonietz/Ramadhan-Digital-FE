@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
-import { sidebarItems, type SidebarItem } from "../../config/sidebar";
+import { sidebarItems } from "../../config/sidebar";
 
 export default function Sidebar() {
   const location = useLocation();

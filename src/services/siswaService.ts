@@ -18,7 +18,7 @@ export const siswaService = {
   },
 
   update: async (id: number | string, payload: Partial<Siswa>): Promise<Siswa> => {
-    const response = await api.put<Siswa>(`${ENDPOINT_2}/${id}`, payload);
+    const response = await api.patch<Siswa>(`${ENDPOINT_2}/${id}`, payload);
     return response.data;
   },
 

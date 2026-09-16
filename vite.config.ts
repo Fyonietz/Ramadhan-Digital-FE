@@ -26,11 +26,13 @@ export default defineConfig(({ mode }) => {
     
     // 3. Konfigurasi Server & Proxy untuk menghindari CORS
     server: {
+      host:true,
+      allowedHosts:true,
       proxy: {
         '/api': {
           target: env.VITE_API_TARGET, // Membaca http://192.168.69.35:3001
           changeOrigin: true,
-          secure: false, 
+          secure: true, 
         }
       }
     }

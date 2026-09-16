@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ReusableTable, { type TableColumn } from "../../components/ui/ReusableTable";
 import ReusableModal, { type FormField } from "../../components/ui/ReusableModal";
-import ImportExcelModal from "../../components/ui/ImportExcelModal"; // <-- Import komponen modal excel
+import ImportExcelModal from "../../components/ui/ImportExcelModal";
 import { useSiswa } from "../../hooks/useSiswa";
 import { useKelas } from "../../hooks/useKelas";
 import type { Siswa } from "../../models/siswa";
@@ -12,13 +12,13 @@ export default function SiswaPage() {
   const { kelasList } = useKelas();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false); // State modal excel
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedSiswa, setSelectedSiswa] = useState<Siswa | null>(null);
 
   const formFields: FormField<Siswa>[] = [
     { name: "nama", label: "Nama Lengkap", type: "text", placeholder: "Contoh: Ghaniy Madea" },
     { name: "username", label: "Username", type: "text", placeholder: "Contoh: labuah" },
-    { name: "password", label: "Password", type: "password", placeholder: "Masukkan password" },
+    { name: "password", label: "Password", type: "password", placeholder: "Masukkan password (kosongkan jika tidak diubah)" },
     { 
       name: "idKelas", 
       label: "Kelas", 
@@ -36,14 +36,19 @@ export default function SiswaPage() {
   };
 
   const handleOpenEdit = (siswa: Siswa) => {
-    setSelectedSiswa(siswa);
+    // Pastikan properti idKelas terpetik dengan benar dari objek siswa.
+    // Jika backend mengirim relasi objek kelas (misal: siswa.kelas.id), pastikan disesuaikan.
+    setSelectedSiswa({
+      ...siswa,
+      idKelas: siswa.idKelas ?? (siswa as any).kelas?.id, // Sesuaikan dengan struktur data API Anda
+    });
     setIsModalOpen(true);
   };
 
   const handleFormSubmit = async (data: any) => {
     const payload = {
       ...data,
-      idKelas: Number(data.idKelas),
+      idKelas: Number(data.idKelas), // Konversi ke angka agar sesuai tipe data ID kelas
     };
 
     let success = false;
@@ -88,7 +93,6 @@ export default function SiswaPage() {
           <p className="text-sm text-gray-500">Kelola data siswa satuan atau melalui import Excel.</p>
         </div>
         
-        {/* Tombol Aksi (Tambah & Import) */}
         <div className="flex items-center gap-3">
           <button 
             onClick={() => setIsImportModalOpen(true)}
@@ -116,10 +120,9 @@ export default function SiswaPage() {
         columns={columns} 
         isLoading={isLoading} 
         emptyMessage="Belum ada data siswa."
-         searchableKeys={["nama", "username", "kelas", "role"]}
+        searchableKeys={["nama", "username", "kelas", "role"]}
       />
 
-      {/* Modal Form Manual (Create / Update) */}
       <ReusableModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -129,7 +132,6 @@ export default function SiswaPage() {
         initialData={selectedSiswa}
       />
 
-      {/* Modal Khusus Import Excel */}
       <ImportExcelModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}

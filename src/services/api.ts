@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Inisiasi Axios dengan Base URL backend Anda
 export const api = axios.create({
-  baseURL: "http://192.168.69.35:3001/api/v1/",
+  baseURL: "https://reproduction-freeware-snow-matthew.trycloudflare.com/api/v1/",
   headers: {
     "Content-Type": "application/json",
   },
