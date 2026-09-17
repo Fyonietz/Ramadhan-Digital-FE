@@ -32,12 +32,12 @@ const features = [
 
 const developers = [
   {
-    name: "Dev 1",
+    name: "Developer Mobile",
     username: "ghaniymadea___",
     url: "https://www.instagram.com/ghaniymadea___/",
   },
   {
-    name: "Dev 2",
+    name: "Developer Backend",
     username: "mhdfarhannn____",
     url: "https://www.instagram.com/mhdfarhannn____?stkn=N3kyamIwb3Jqa2dx",
   },
