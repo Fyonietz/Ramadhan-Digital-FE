@@ -1,9 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronRight, LogOut } from "lucide-react";
+import { ChevronDown, ChevronRight, LogOut, X } from "lucide-react";
 import { sidebarItems } from "../../config/sidebar";
 
-export default function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+}
+
+export default function Sidebar({ onNavigate }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
@@ -29,14 +33,29 @@ export default function Sidebar() {
     navigate("/login", { replace: true });
   };
 
+  const handleNavigate = () => {
+    onNavigate?.();
+  };
+
   return (
     <aside className="w-64 bg-[#135f38] text-white min-h-screen flex flex-col transition-all duration-300 shadow-xl z-20">
       {/* Header Sidebar */}
-      <div className="p-6 flex items-center gap-3 border-b border-white/10">
-        <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center font-bold">
-          R
+      <div className="p-6 flex items-center justify-between gap-3 border-b border-white/10">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center overflow-hidden">
+            <img src="/logo.jpeg" alt="Logo" className="h-full w-full object-cover" />
+          </div>
+          <span className="font-bold text-lg tracking-wide">Ramadhan Admin</span>
         </div>
-        <span className="font-bold text-lg tracking-wide">Ramadhan Admin</span>
+
+        <button
+          type="button"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/20 text-white md:hidden"
+          onClick={handleNavigate}
+          aria-label="Tutup menu sidebar"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       {/* Render Menu Dinamis dari Config */}
@@ -65,6 +84,7 @@ export default function Sidebar() {
               ) : (
                 <Link
                   to={menu.path!}
+                  onClick={handleNavigate}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
                     isActive ? "bg-white/20 text-white font-medium" : "text-white/70 hover:bg-white/10 hover:text-white"
                   }`}
@@ -84,6 +104,7 @@ export default function Sidebar() {
                       <Link
                         key={childIndex}
                         to={child.path!}
+                        onClick={handleNavigate}
                         className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors ${
                           isChildActive 
                             ? "bg-[#187541] text-white font-medium" 

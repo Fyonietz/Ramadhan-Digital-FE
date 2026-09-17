@@ -23,10 +23,12 @@ export default function LoginPage() {
       
       {/* Area Logo & Judul Aplikasi */}
       <div className="mb-8 flex flex-col items-center z-10">
-        <div className="w-20 h-20 bg-[#82c676] rounded-2xl p-2 mb-4 shadow-sm flex items-center justify-center border-2 border-white/20">
-           <span className="text-white font-bold text-xs text-center">
-             LOGO<br/>RAMADHAN
-           </span>
+        <div className="w-20 h-20 rounded-2xl p-1 mb-4 shadow-sm flex items-center justify-center border-2 border-white/20 bg-white/10 backdrop-blur-sm">
+          <img
+            src="/logo.jpeg"
+            alt="Logo Ramadhan Digital"
+            className="h-full w-full rounded-xl object-cover"
+          />
         </div>
         <h1 className="text-white text-3xl font-bold tracking-wide">
           Ramadhan Digital

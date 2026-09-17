@@ -99,8 +99,8 @@ export default function ReusableTable<T extends { id?: string | number } & Recor
       )}
 
       {/* Container Tabel dengan Inside Scroll & Sticky Header */}
-      <div className="max-h-[450px] overflow-y-auto relative">
-        <table className="w-full text-left border-collapse" role="table" aria-label="Data table">
+      <div className="max-h-[450px] overflow-auto relative">
+        <table className="w-full min-w-[720px] text-left border-collapse" role="table" aria-label="Data table">
           <caption className="sr-only">Tabel data</caption>
           <thead className="sticky top-0 z-10 bg-gray-50 border-b border-gray-100 text-gray-500 text-xs uppercase tracking-wider shadow-sm">
             <tr>
